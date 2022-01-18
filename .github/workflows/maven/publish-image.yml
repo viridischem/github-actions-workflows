@@ -1,0 +1,60 @@
+name: Build and publish maven app
+on:
+  workflow_call:
+    inputs:
+      javaDistribution:
+        description: The distribution of Java to use
+        default: "zulu"
+        type: string
+      javaVersion:
+        description: The version of Java to use
+        default: "8"
+        type: string
+      sourceImage:
+        describe: The base docker image to use
+        default: "gcr.io/distroless/java:8"
+        type: string
+      repository:
+        description: The image repository to push to
+        required: true
+      file:
+        description: The path to the Dockerfile in the repository
+        required: false
+        default: "./Dockerfile"
+        type: string
+      tags:
+        description: The image tags to push
+        required: true
+        type: string
+    secrets:
+      GCLOUD_SERVICE_ACCOUNT:
+        description: Service account email with push access to GCR
+        required: true
+      GCLOUD_SERVICE_KEY:
+        description: Service account JSON with push access to GCR
+        required: true
+
+jobs:
+  jib-build-and-push-to-gcr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: set up java jdk
+        uses: actions/setup-java@v2
+        with:
+          distribution: "${{ inputs.javaDistribution }}"
+          java-version: "${{ inputs.javaVersion }}"
+      - uses: google-github-actions/auth@v0
+        with:
+          service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
+      - uses: google-github-actions/setup-gcloud@v0
+      - name: test with maven
+        run: mvn --batch-mode --update-snapshots verify
+      - name: configure docker auth
+        run: gcloud auth configure-docker
+      - name: Build and publish with Maven
+        run: |
+          mvn --batch-mode clean compile jib:build $MAVEN_CLI_OPTS \
+          -Djib.from.image="${{ inputs.sourceImage }}" \
+          -Djib.to.tags="${{ inputs.tags }}" \
+          -Djib.to.image="${{ inputs.repository }}"

@@ -1,0 +1,36 @@
+name: Run tests on npm package
+on:
+  workflow_call:
+    inputs:
+      javaDistribution:
+        description: The distribution of Java to use
+        default: "zulu"
+        type: string
+      javaVersion:
+        description: The version of Java to use
+        default: "8"
+        type: string
+    secrets:
+      GCLOUD_SERVICE_ACCOUNT:
+        description: Service account email with push access to GCR
+        required: true
+      GCLOUD_SERVICE_KEY:
+        description: Service account JSON with push access to GCR
+        required: true
+
+jobs:
+  run-maven-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: set up java jdk
+        uses: actions/setup-java@v2
+        with:
+          distribution: "${{ inputs.javaDistribution }}"
+          java-version: "${{ inputs.javaVersion }}"
+      - uses: google-github-actions/auth@v0
+        with:
+          service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
+      - uses: google-github-actions/setup-gcloud@v0
+      - name: test with maven
+        run: mvn --batch-mode --update-snapshots verify

@@ -1,0 +1,21 @@
+name: Run tests on npm app
+on:
+  workflow_call:
+    inputs:
+      nodeVersion:
+        description: The version of node to use
+        default: "16"
+        type: string
+
+jobs:
+  run-npm-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "${{ inputs.nodeVersion }}"
+      - name: install npm packages
+        run: npm ci
+      - name: run npm tests
+        run: npm test
