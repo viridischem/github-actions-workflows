@@ -11,7 +11,7 @@ on:
         default: "8"
         type: string
       sourceImage:
-        describe: The base docker image to use
+        description: The base docker image to use
         default: "gcr.io/distroless/java:8"
         type: string
       repository:
