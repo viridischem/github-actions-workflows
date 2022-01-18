@@ -38,6 +38,7 @@ jobs:
   jib-build-and-push-to-gcr:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: set up java jdk
         uses: actions/setup-java@v2
         with:

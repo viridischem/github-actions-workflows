@@ -36,6 +36,7 @@ jobs:
   build-and-push-to-gcr-with-dependency:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - uses: google-github-actions/auth@v0
         with:
           service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
