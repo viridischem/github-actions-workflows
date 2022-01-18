@@ -17,11 +17,24 @@ on:
       GCLOUD_SERVICE_KEY:
         description: Service account JSON with push access to GCR
         required: true
+      SLACK_NOTIFICATIONS_BOT_TOKEN:
+        description: Bot token for Slack notifications
+        required: true
 
 jobs:
   run-maven-tests:
     runs-on: ubuntu-latest
     steps:
+      - name: Notify slack started
+        if: success()
+        id: slack
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel: github-actions
+          status: STARTED
+          color: warning
       - uses: actions/checkout@v2
       - name: set up java jdk
         uses: actions/setup-java@v2
@@ -35,3 +48,25 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v0
       - name: test with maven
         run: mvn --batch-mode --update-snapshots verify
+      - name: Notify slack success
+        if: success()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          # Updates existing message from the first step
+          message_id: ${{ steps.slack.outputs.message_id }}
+          channel: github-actions
+          status: SUCCESS
+          color: good
+      - name: Notify slack failure
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          # Updates existing message from the first step
+          message_id: ${{ steps.slack.outputs.message_id }}
+          channel: github-actions
+          status: FAILED
+          color: danger

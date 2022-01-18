@@ -39,7 +39,7 @@ jobs:
   build-and-push-to-gcr-with-dependency:
     runs-on: ubuntu-latest
     steps:
-      - name: Notify slack success
+      - name: Notify slack started
         if: success()
         id: slack
         env:
