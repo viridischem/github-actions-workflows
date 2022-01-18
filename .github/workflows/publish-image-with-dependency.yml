@@ -36,6 +36,16 @@ jobs:
   build-and-push-to-gcr-with-dependency:
     runs-on: ubuntu-latest
     steps:
+      - name: Notify slack success
+        if: success()
+        id: slack
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel: github-actions
+          status: STARTED
+          color: warning
       - uses: actions/checkout@v2
       - name: Get the ref name
         id: get_ref_name
@@ -63,3 +73,25 @@ jobs:
           file: "${{ inputs.file }}"
           push: true
           tags: ${{ inputs.repository }}:${{ steps.get_ref_name.outputs.GIT_REF_NAME }}
+      - name: Notify slack success
+        if: success()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          # Updates existing message from the first step
+          message_id: ${{ steps.slack.outputs.message_id }}
+          channel: github-actions
+          status: SUCCESS
+          color: good
+      - name: Notify slack failure
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          # Updates existing message from the first step
+          message_id: ${{ steps.slack.outputs.message_id }}
+          channel: github-actions
+          status: FAILED
+          color: danger
