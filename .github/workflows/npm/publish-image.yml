@@ -16,8 +16,8 @@ on:
         required: false
         default: "./Dockerfile"
         type: string
-      tags:
-        description: The image tags to push
+      repository:
+        description: The image repository to push to
         required: true
         type: string
     secrets:
@@ -33,6 +33,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Get the ref name
+        id: get_ref_name
+        run: |
+          if [$GITHUB_REF_NAME == 'tag']
+          then
+              echo ::set-output name=GIT_REF_NAME::${GITHUB_REF/refs\/tags\//}
+          else
+              echo ::set-output name=GIT_REF_NAME::${GITHUB_REF/refs\/heads\//}
+          fi
       - uses: actions/setup-node@v2
         with:
           node-version: "${{ inputs.nodeVersion }}"
@@ -55,4 +64,4 @@ jobs:
           context: "${{ inputs.context }}"
           file: "${{ inputs.file }}"
           push: true
-          tags: "${{ inputs.tags }}"
+          tags: ${{ inputs.repository }}:${{ steps.get_ref_name.outputs.GIT_REF_NAME }}

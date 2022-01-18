@@ -17,14 +17,6 @@ on:
       repository:
         description: The image repository to push to
         required: true
-      file:
-        description: The path to the Dockerfile in the repository
-        required: false
-        default: "./Dockerfile"
-        type: string
-      tags:
-        description: The image tags to push
-        required: true
         type: string
     secrets:
       GCLOUD_SERVICE_ACCOUNT:
@@ -39,6 +31,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Get the ref name
+        id: get_ref_name
+        run: |
+          if [$GITHUB_REF_NAME == 'tag']
+          then
+              echo ::set-output name=GIT_REF_NAME::${GITHUB_REF/refs\/tags\//}
+          else
+              echo ::set-output name=GIT_REF_NAME::${GITHUB_REF/refs\/heads\//}
+          fi
       - name: set up java jdk
         uses: actions/setup-java@v2
         with:
@@ -57,5 +58,4 @@ jobs:
         run: |
           mvn --batch-mode clean compile jib:build $MAVEN_CLI_OPTS \
           -Djib.from.image="${{ inputs.sourceImage }}" \
-          -Djib.to.tags="${{ inputs.tags }}" \
-          -Djib.to.image="${{ inputs.repository }}"
+          -Djib.to.image="${{ inputs.repository }}:${{ steps.get_ref_name.outputs.GIT_REF_NAME }}"

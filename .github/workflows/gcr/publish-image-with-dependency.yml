@@ -12,18 +12,18 @@ on:
         required: false
         default: "./Dockerfile"
         type: string
-      tags:
-        description: The image tags to push
-        required: true
-        type: string
       dependencyLocation:
         description: The location of the dependency in Google Cloud Storage
-          required: true
-          type: string
+        required: true
+        type: string
       dependencyDestination:
         description: The destination filename of the downloaded dependency
-          required: true
-          type: string
+        required: true
+        type: string
+      repository:
+        description: The image repository to push to
+        required: true
+        type: string
     secrets:
       GCLOUD_SERVICE_ACCOUNT:
         description: Service account email with push access to GCR
@@ -37,6 +37,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Get the ref name
+        id: get_ref_name
+        run: |
+          if [$GITHUB_REF_NAME == 'tag']
+          then
+              echo ::set-output name=GIT_REF_NAME::${GITHUB_REF/refs\/tags\//}
+          else
+              echo ::set-output name=GIT_REF_NAME::${GITHUB_REF/refs\/heads\//}
+          fi
       - uses: google-github-actions/auth@v0
         with:
           service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
@@ -53,4 +62,4 @@ jobs:
           context: "${{ inputs.context }}"
           file: "${{ inputs.file }}"
           push: true
-          tags: "${{ inputs.tags }}"
+          tags: ${{ inputs.repository }}:${{ steps.get_ref_name.outputs.GIT_REF_NAME }}
