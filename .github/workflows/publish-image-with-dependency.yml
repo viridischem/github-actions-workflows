@@ -31,6 +31,9 @@ on:
       GCLOUD_SERVICE_KEY:
         description: Service account JSON with push access to GCR
         required: true
+      SLACK_NOTIFICATIONS_BOT_TOKEN:
+        description: Bot token for Slack notifications
+        required: true
 
 jobs:
   build-and-push-to-gcr-with-dependency:
