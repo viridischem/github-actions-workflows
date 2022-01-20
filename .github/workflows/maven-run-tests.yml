@@ -47,7 +47,7 @@ jobs:
           credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
       - uses: google-github-actions/setup-gcloud@v0
       - name: test with maven
-        run: mvn --batch-mode --update-snapshots verify
+        run: mvn --batch-mode --update-snapshots test
       - name: Notify slack success
         if: success()
         env:
