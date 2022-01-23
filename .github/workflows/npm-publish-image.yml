@@ -49,12 +49,15 @@ jobs:
       - name: Get the ref name
         id: get_ref_name
         run: |
-          if [$GITHUB_REF_NAME == 'tag']
+          if [$GITHUB_REF_TYPE == 'tag']
           then
-              echo ::set-output name=GIT_REF_NAME::${GITHUB_REF/refs\/tags\//}
+              GITHUB_REF_TMP=${GITHUB_REF#refs/tags/}
           else
-              echo ::set-output name=GIT_REF_NAME::${GITHUB_REF/refs\/heads\//}
+              GITHUB_REF_TMP=${GITHUB_REF#refs/heads/}
           fi
+          GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
+          echo ::set-output name=GIT_REF_NAME::${GITHUB_REF_TMP}
+          echo ::set-output name=GIT_REF_DOCKER_TAG::${GITHUB_REF_CLEANED}
       - uses: actions/setup-node@v2
         with:
           node-version: "${{ inputs.nodeVersion }}"
@@ -77,7 +80,7 @@ jobs:
           context: "${{ inputs.context }}"
           file: "${{ inputs.file }}"
           push: true
-          tags: ${{ inputs.repository }}:${{ steps.get_ref_name.outputs.GIT_REF_NAME }}
+          tags: ${{ inputs.repository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
       - name: Notify slack success
         if: success()
         env:

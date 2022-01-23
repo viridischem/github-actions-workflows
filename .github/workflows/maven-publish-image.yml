@@ -47,12 +47,15 @@ jobs:
       - name: Get the ref name
         id: get_ref_name
         run: |
-          if [$GITHUB_REF_NAME == 'tag']
+          if [$GITHUB_REF_TYPE == 'tag']
           then
-              echo ::set-output name=GIT_REF_NAME::${GITHUB_REF/refs\/tags\//}
+              GITHUB_REF_TMP=${GITHUB_REF#refs/tags/}
           else
-              echo ::set-output name=GIT_REF_NAME::${GITHUB_REF/refs\/heads\//}
+              GITHUB_REF_TMP=${GITHUB_REF#refs/heads/}
           fi
+          GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
+          echo ::set-output name=GIT_REF_NAME::${GITHUB_REF_TMP}
+          echo ::set-output name=GIT_REF_DOCKER_TAG::${GITHUB_REF_CLEANED}
       - name: set up java jdk
         uses: actions/setup-java@v2
         with:
@@ -71,7 +74,7 @@ jobs:
         run: |
           mvn --batch-mode clean compile jib:build $MAVEN_CLI_OPTS \
           -Djib.from.image="${{ inputs.sourceImage }}" \
-          -Djib.to.image="${{ inputs.repository }}:${{ steps.get_ref_name.outputs.GIT_REF_NAME }}"
+          -Djib.to.image="${{ inputs.repository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}"
       - name: Notify slack success
         if: success()
         env:
