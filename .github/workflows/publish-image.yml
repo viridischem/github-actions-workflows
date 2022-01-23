@@ -45,12 +45,14 @@ jobs:
       - name: Get the ref name
         id: get_ref_name
         run: |
-          if [$GITHUB_REF_TYPE == 'tag']
+          if [ ! -z "$GITHUB_REF_NAME" ]
           then
-              GITHUB_REF_TMP=${GITHUB_REF#refs/tags/}
+              GITHUB_REF_TMP=${GITHUB_REF_NAME}
           else
               GITHUB_REF_TMP=${GITHUB_REF#refs/heads/}
+              GITHUB_REF_TMP=${GITHUB_REF_TMP#refs/tags/}
           fi
+
           GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
           echo ::set-output name=GIT_REF_NAME::${GITHUB_REF_TMP}
           echo ::set-output name=GIT_REF_DOCKER_TAG::${GITHUB_REF_CLEANED}
