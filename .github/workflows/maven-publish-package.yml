@@ -1,4 +1,4 @@
-name: Run tests on maven package
+name: Build and publish maven package
 on:
   workflow_call:
     inputs:
@@ -12,10 +12,10 @@ on:
         type: string
     secrets:
       GCLOUD_SERVICE_ACCOUNT:
-        description: Service account email with push access to GCR
+        description: Service account email with write access to GCS
         required: true
       GCLOUD_SERVICE_KEY:
-        description: Service account JSON with push access to GCR
+        description: Service account JSON with write access to GCS
         required: true
       SLACK_NOTIFICATIONS_BOT_TOKEN:
         description: Bot token for Slack notifications
@@ -36,6 +36,20 @@ jobs:
           status: STARTED
           color: warning
       - uses: actions/checkout@v2
+      - name: Get the ref name
+        id: get_ref_name
+        run: |
+          if [ ! -z "$GITHUB_REF_NAME" ]
+          then
+              GITHUB_REF_TMP=${GITHUB_REF_NAME}
+          else
+              GITHUB_REF_TMP=${GITHUB_REF#refs/heads/}
+              GITHUB_REF_TMP=${GITHUB_REF_TMP#refs/tags/}
+          fi
+
+          GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
+          echo ::set-output name=GIT_REF_NAME::${GITHUB_REF_TMP}
+          echo ::set-output name=GIT_REF_DOCKER_TAG::${GITHUB_REF_CLEANED}
       - name: set up java jdk
         uses: actions/setup-java@v2
         with:
@@ -46,8 +60,8 @@ jobs:
           service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
           credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
       - uses: google-github-actions/setup-gcloud@v0
-      - name: test with maven
-        run: mvn --batch-mode --update-snapshots test
+      - name: publish with maven
+        run: mvn --batch-mode --update-snapshots clean deploy -Drevision="${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}"
       - name: Notify slack success
         if: success()
         env:
