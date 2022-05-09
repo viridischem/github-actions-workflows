@@ -62,7 +62,7 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v0
       - name: publish with maven
         env:
-          PACKAGE_VERSION: ${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
+          MAVEN_PACKAGE_VERSION: ${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
         run: mvn --batch-mode --update-snapshots clean deploy -Drevision="${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}"
       - name: Notify slack success
         if: success()
