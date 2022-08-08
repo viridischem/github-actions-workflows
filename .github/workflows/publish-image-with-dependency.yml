@@ -81,43 +81,44 @@ jobs:
           echo ::set-output name=GIT_REF_DOCKER_TAG::${GITHUB_REF_CLEANED}
       # Google
       - uses: google-github-actions/auth@v0
+        if: "${{ inputs.gcrRepository != '' }}"
         with:
           service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
           credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
       - uses: google-github-actions/setup-gcloud@v0
       - name: authenticate to GCR
+        if: "${{ inputs.gcrRepository != '' }}"
         run: gcloud auth configure-docker
       # Amazon
       - name: Configure AWS credentials
+        if: "${{ inputs.ecrRepository != '' }}"
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ inputs.aws_region }}
       - name: Login to Amazon ECR
+        if: "${{ inputs.ecrRepository != '' }}"
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Build and tag images
+      # BEGIN BUILD
+      - name: Build and push images to ECR
+        if: "${{ inputs.ecrRepository != '' }}"
         uses: docker/build-push-action@v2
         with:
           context: "${{ inputs.context }}"
           file: "${{ inputs.file }}"
-          push: false
-          tags: build:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
-      - name: Push image to ECR
-        if: "${{ inputs.ecrRepository != '' }}"
-        uses: akhilerm/tag-push-action@v2.0.0
-        with:
-          src: build:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
-          dst: |
-            ${{ inputs.ecrRepository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
-      - name: Push image to GCR
+          push: true
+          tags: ${{ inputs.ecrRepository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
+      - name: Build and push images to GCR
         if: "${{ inputs.gcrRepository != '' }}"
-        uses: akhilerm/tag-push-action@v2.0.0
+        uses: docker/build-push-action@v2
         with:
-          src: build:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
-          dst: |
-            ${{ inputs.gcrRepository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
+          context: "${{ inputs.context }}"
+          file: "${{ inputs.file }}"
+          push: true
+          tags: ${{ inputs.gcrRepository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
+      # END BUILD
       - name: Notify slack success
         if: success()
         env:
