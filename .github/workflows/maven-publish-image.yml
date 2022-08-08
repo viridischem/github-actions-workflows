@@ -14,11 +14,26 @@ on:
         description: The base docker image to use
         default: "gcr.io/distroless/java:8"
         type: string
-      repository:
-        description: The image repository to push to
-        required: true
+      ecrRepository:
+        description: The ECR image repository to push to
+        required: false
+        default: ""
+        type: string
+      gcrRepository:
+        description: The GCR image repository to push to
+        required: false
+        default: ""
+        type: string
+      aws_region:
+        description: The region for the ECR repo
+        required: false
+        default: us-east-1
         type: string
     secrets:
+      AWS_ACCESS_KEY_ID:
+        description: AWS key with push access to ECR
+      AWS_SECRET_ACCESS_KEY:
+        description: AWS secret with push access to ECR
       GCLOUD_SERVICE_ACCOUNT:
         description: Service account email with push access to GCR
         required: true
@@ -63,20 +78,36 @@ jobs:
         with:
           distribution: "${{ inputs.javaDistribution }}"
           java-version: "${{ inputs.javaVersion }}"
+      # Google
       - uses: google-github-actions/auth@v0
         with:
           service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
           credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
       - uses: google-github-actions/setup-gcloud@v0
-      - name: test with maven
-        run: mvn --batch-mode --update-snapshots verify
-      - name: configure docker auth
+      - name: authenticate to GCR
         run: gcloud auth configure-docker
-      - name: Build and publish with Maven
+      # Amazon
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.aws_region }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build and publish with Maven to ECR
+        if: "${{ inputs.ecrRepository != '' }}"
         run: |
           mvn --batch-mode clean compile jib:build $MAVEN_CLI_OPTS \
           -Djib.from.image="${{ inputs.sourceImage }}" \
-          -Djib.to.image="${{ inputs.repository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}"
+          -Djib.to.image="${{ inputs.ecrRepository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}"
+      - name: Build and publish with Maven to GCR
+        if: "${{ inputs.gcrRepository != '' }}"
+        run: |
+          mvn --batch-mode clean compile jib:build $MAVEN_CLI_OPTS \
+          -Djib.from.image="${{ inputs.sourceImage }}" \
+          -Djib.to.image="${{ inputs.gcrRepository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}"
       - name: Notify slack success
         if: success()
         env:

@@ -12,11 +12,26 @@ on:
         required: false
         default: "./Dockerfile"
         type: string
-      repository:
-        description: The image repository to push to
-        required: true
+      ecrRepository:
+        description: The ECR image repository to push to
+        required: false
+        default: ""
+        type: string
+      gcrRepository:
+        description: The GCR image repository to push to
+        required: false
+        default: ""
+        type: string
+      aws_region:
+        description: The region for the ECR repo
+        required: false
+        default: us-east-1
         type: string
     secrets:
+      AWS_ACCESS_KEY_ID:
+        description: AWS key with push access to ECR
+      AWS_SECRET_ACCESS_KEY:
+        description: AWS secret with push access to ECR
       GCLOUD_SERVICE_ACCOUNT:
         description: Service account email with push access to GCR
         required: true
@@ -56,6 +71,7 @@ jobs:
           GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
           echo ::set-output name=GIT_REF_NAME::${GITHUB_REF_TMP}
           echo ::set-output name=GIT_REF_DOCKER_TAG::${GITHUB_REF_CLEANED}
+      # Google
       - uses: google-github-actions/auth@v0
         with:
           service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
@@ -63,13 +79,37 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v0
       - name: authenticate to GCR
         run: gcloud auth configure-docker
-      - name: Build and push
+      # Amazon
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.aws_region }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build and tag images
         uses: docker/build-push-action@v2
         with:
           context: "${{ inputs.context }}"
           file: "${{ inputs.file }}"
-          push: true
-          tags: ${{ inputs.repository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
+          push: false
+          tags: build:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
+      - name: Push image to ECR
+        if: "${{ inputs.ecrRepository != '' }}"
+        uses: akhilerm/tag-push-action@v2.0.0
+        with:
+          src: build:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
+          dst: |
+            ${{ inputs.ecrRepository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
+      - name: Push image to GCR
+        if: "${{ inputs.gcrRepository != '' }}"
+        uses: akhilerm/tag-push-action@v2.0.0
+        with:
+          src: build:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
+          dst: |
+            ${{ inputs.gcrRepository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
       - name: Notify slack success
         if: success()
         env:
