@@ -1,4 +1,4 @@
-name: Push to GCR GitHub Action
+name: Push to image repositories Github Action
 on:
   workflow_call:
     inputs:
