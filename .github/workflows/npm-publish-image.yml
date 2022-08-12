@@ -34,14 +34,16 @@ on:
     secrets:
       AWS_ACCESS_KEY_ID:
         description: AWS key with push access to ECR
+        required: false
       AWS_SECRET_ACCESS_KEY:
         description: AWS secret with push access to ECR
+        required: false
       GCLOUD_SERVICE_ACCOUNT:
         description: Service account email with push access to GCR
-        required: true
+        required: false
       GCLOUD_SERVICE_KEY:
         description: Service account JSON with push access to GCR
-        required: true
+        required: false
       SLACK_NOTIFICATIONS_BOT_TOKEN:
         description: Bot token for Slack notifications
         required: true

@@ -13,8 +13,10 @@ on:
     secrets:
       AWS_ACCESS_KEY_ID:
         description: AWS key with push access to ECR
+        required: false
       AWS_SECRET_ACCESS_KEY:
         description: AWS secret with push access to ECR
+        required: false
       GCLOUD_SERVICE_ACCOUNT:
         description: Service account email with write access to GCS
         required: true
