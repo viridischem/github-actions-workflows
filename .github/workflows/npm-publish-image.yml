@@ -4,7 +4,7 @@ on:
     inputs:
       nodeVersion:
         description: The version of node to use
-        default: "16"
+        default: "lts/*"
         type: string
       context:
         description: The path to the docker context in the repository

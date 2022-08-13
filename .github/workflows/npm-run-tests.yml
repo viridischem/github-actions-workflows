@@ -4,7 +4,7 @@ on:
     inputs:
       nodeVersion:
         description: The version of node to use
-        default: "16"
+        default: "lts/*"
         type: string
     secrets:
       SLACK_NOTIFICATIONS_BOT_TOKEN:
