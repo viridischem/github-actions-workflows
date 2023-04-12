@@ -53,7 +53,7 @@ jobs:
         id: slack
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: rvaidya/github-action-slack-notify-build@v1
+        uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel: github-actions
           status: STARTED
@@ -94,7 +94,7 @@ jobs:
       - name: Login to Amazon ECR
         if: "${{ inputs.ecrRepository != '' }}"
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v1
       # BEGIN BUILD
       - name: Build and push images to ECR
         if: "${{ inputs.ecrRepository != '' }}"
@@ -117,7 +117,7 @@ jobs:
         if: success()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: rvaidya/github-action-slack-notify-build@v1
+        uses: voxmedia/github-action-slack-notify-build@v1
         with:
           # Updates existing message from the first step
           message_id: ${{ steps.slack.outputs.message_id }}
@@ -128,7 +128,7 @@ jobs:
         if: failure()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: rvaidya/github-action-slack-notify-build@v1
+        uses: voxmedia/github-action-slack-notify-build@v1
         with:
           # Updates existing message from the first step
           message_id: ${{ steps.slack.outputs.message_id }}
