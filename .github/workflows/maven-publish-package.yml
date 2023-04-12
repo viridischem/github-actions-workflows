@@ -36,12 +36,12 @@ jobs:
         id: slack
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: rvaidya/github-action-slack-notify-build@v1
         with:
           channel: github-actions
           status: STARTED
           color: warning
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Get the ref name
         id: get_ref_name
         run: |
@@ -54,19 +54,19 @@ jobs:
           fi
 
           GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
-          echo ::set-output name=GIT_REF_NAME::${GITHUB_REF_TMP}
-          echo ::set-output name=GIT_REF_DOCKER_TAG::${GITHUB_REF_CLEANED}
+          echo "GIT_REF_NAME=${GITHUB_REF_TMP}" >> $GITHUB_OUTPUT
+          echo "GIT_REF_DOCKER_TAG=${GITHUB_REF_CLEANED}" >> $GITHUB_OUTPUT
       - name: set up java jdk
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: "${{ inputs.javaDistribution }}"
           java-version: "${{ inputs.javaVersion }}"
       # Google
-      - uses: google-github-actions/auth@v0
+      - uses: google-github-actions/auth@v1
         with:
           service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
           credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
-      - uses: google-github-actions/setup-gcloud@v0
+      - uses: google-github-actions/setup-gcloud@v1
       - name: publish with maven
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -78,7 +78,7 @@ jobs:
         if: success()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: rvaidya/github-action-slack-notify-build@v1
         with:
           # Updates existing message from the first step
           message_id: ${{ steps.slack.outputs.message_id }}
@@ -89,7 +89,7 @@ jobs:
         if: failure()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: rvaidya/github-action-slack-notify-build@v1
         with:
           # Updates existing message from the first step
           message_id: ${{ steps.slack.outputs.message_id }}
