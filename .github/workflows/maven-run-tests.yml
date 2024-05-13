@@ -10,6 +10,10 @@ on:
         description: The version of Java to use
         default: "8"
         type: string
+      mavenOptions:
+        description: Additional CLI options to pass to Maven
+        default: ""
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         description: AWS key with push access to ECR
@@ -76,7 +80,7 @@ jobs:
       - name: test with maven
         env:
           MAVEN_PACKAGE_VERSION: ${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
-        run: mvn --batch-mode --update-snapshots test
+        run: mvn --batch-mode --update-snapshots ${{ inputs.mavenOptions }} test
       - name: Notify slack success
         if: success()
         env:
