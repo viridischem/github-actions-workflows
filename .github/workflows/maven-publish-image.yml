@@ -59,7 +59,7 @@ jobs:
         id: slack
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: zuplo/github-action-slack-notify-build@v2
         with:
           channel: github-actions
           status: STARTED
@@ -130,7 +130,7 @@ jobs:
         if: success()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: zuplo/github-action-slack-notify-build@v2
         with:
           # Updates existing message from the first step
           message_id: ${{ steps.slack.outputs.message_id }}
@@ -141,7 +141,7 @@ jobs:
         if: failure()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: zuplo/github-action-slack-notify-build@v2
         with:
           # Updates existing message from the first step
           message_id: ${{ steps.slack.outputs.message_id }}
