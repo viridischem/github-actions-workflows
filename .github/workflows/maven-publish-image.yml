@@ -111,6 +111,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ inputs.aws_region }}
+          MAVEN_PACKAGE_VERSION: ${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
         run: |
           mvn --batch-mode clean compile jib:build ${{ inputs.mavenOptions }} \
           -Djib.from.image="${{ inputs.sourceImage }}" \
