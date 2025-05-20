@@ -2,6 +2,10 @@ name: Push to image repositories Github Action
 on:
   workflow_call:
     inputs:
+      lfs:
+        description: Use Git LFS when checkout out files
+        default: false
+        type: boolean
       context:
         description: The path to the docker context in the repository
         required: false
@@ -58,7 +62,9 @@ jobs:
           channel: github-actions
           status: STARTED
           color: warning
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          lfs: ${{ inputs.lfs }}
       - name: Get the ref name
         id: get_ref_name
         run: |

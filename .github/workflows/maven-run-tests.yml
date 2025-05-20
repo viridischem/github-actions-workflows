@@ -2,6 +2,10 @@ name: Run tests on maven package
 on:
   workflow_call:
     inputs:
+      lfs:
+        description: Use Git LFS when checkout out files
+        default: false
+        type: boolean
       javaDistribution:
         description: The distribution of Java to use
         default: "zulu"
@@ -43,7 +47,9 @@ jobs:
           channel: github-actions
           status: STARTED
           color: warning
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          lfs: ${{ inputs.lfs }}
       - name: Get the ref name
         id: get_ref_name
         run: |
