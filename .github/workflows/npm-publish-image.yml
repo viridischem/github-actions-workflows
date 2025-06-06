@@ -35,6 +35,11 @@ on:
         required: false
         default: us-east-1
         type: string
+      legacyPeerDeps:
+        description: Use --legacy-peer-deps flag with npm ci
+        required: false
+        default: false
+        type: boolean
     secrets:
       AWS_ACCESS_KEY_ID:
         description: AWS key with push access to ECR
@@ -83,11 +88,11 @@ jobs:
           GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
           echo "GIT_REF_NAME=${GITHUB_REF_TMP}" >> $GITHUB_OUTPUT
           echo "GIT_REF_DOCKER_TAG=${GITHUB_REF_CLEANED}" >> $GITHUB_OUTPUT
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
           node-version: "${{ inputs.nodeVersion }}"
       - name: install npm packages
-        run: npm ci
+        run: npm ci${{ inputs.legacyPeerDeps && ' --legacy-peer-deps' || '' }}
       - name: run npm tests
         run: npm test
       - name: build repository
