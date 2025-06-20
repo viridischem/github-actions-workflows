@@ -111,6 +111,10 @@ jobs:
         if: "${{ inputs.ecrRepository != '' }}"
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+      - name: Set Maven Version
+        env:
+          MAVEN_PACKAGE_VERSION: ${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
+        run: mvn versions:set -DnewVersion=$MAVEN_PACKAGE_VERSION
       - name: Build and publish with Maven to ECR
         if: "${{ inputs.ecrRepository != '' }}"
         env:

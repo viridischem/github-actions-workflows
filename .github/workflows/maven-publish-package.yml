@@ -77,6 +77,10 @@ jobs:
           service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
           credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
       - uses: google-github-actions/setup-gcloud@v1
+      - name: Set Maven Version
+        env:
+          MAVEN_PACKAGE_VERSION: ${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
+        run: mvn versions:set -DnewVersion=$MAVEN_PACKAGE_VERSION
       - name: publish with maven
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
