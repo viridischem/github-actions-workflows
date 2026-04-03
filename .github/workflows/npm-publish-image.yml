@@ -40,6 +40,11 @@ on:
         required: false
         default: false
         type: boolean
+      runTests:
+        description: Run npm test before building the repository
+        required: false
+        default: true
+        type: boolean
     secrets:
       AWS_ACCESS_KEY_ID:
         description: AWS key with push access to ECR
@@ -94,6 +99,7 @@ jobs:
       - name: install npm packages
         run: npm ci${{ inputs.legacyPeerDeps && ' --legacy-peer-deps' || '' }}
       - name: run npm tests
+        if: ${{ inputs.runTests }}
         run: npm test
       - name: build repository
         run: npm run build
