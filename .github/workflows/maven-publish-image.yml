@@ -37,6 +37,10 @@ on:
         required: false
         default: us-east-1
         type: string
+      cacheDependencyPath:
+        description: Maven dependency file(s) used for cache keying
+        default: "pom.xml"
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         description: AWS key with push access to ECR
@@ -85,11 +89,13 @@ jobs:
           GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
           echo "GIT_REF_NAME=${GITHUB_REF_TMP}" >> $GITHUB_OUTPUT
           echo "GIT_REF_DOCKER_TAG=${GITHUB_REF_CLEANED}" >> $GITHUB_OUTPUT
-      - name: set up java jdk
-        uses: actions/setup-java@v3
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
           distribution: "${{ inputs.javaDistribution }}"
           java-version: "${{ inputs.javaVersion }}"
+          cache: maven
+          cache-dependency-path: "${{ inputs.cacheDependencyPath }}"
       # Google
       - uses: google-github-actions/auth@v1
         with:
