@@ -80,7 +80,7 @@ jobs:
           echo "GIT_REF_NAME=${GITHUB_REF_TMP}" >> $GITHUB_OUTPUT
           echo "GIT_REF_DOCKER_TAG=${GITHUB_REF_CLEANED}" >> $GITHUB_OUTPUT
       # Google
-      - uses: google-github-actions/auth@v1
+      - uses: google-github-actions/auth@v3
         if: "${{ inputs.gcrRepository != '' }}"
         with:
           service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
