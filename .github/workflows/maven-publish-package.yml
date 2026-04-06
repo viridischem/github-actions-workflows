@@ -53,7 +53,7 @@ jobs:
           channel: github-actions
           status: STARTED
           color: warning
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           lfs: ${{ inputs.lfs }}
       - name: Get the ref name
