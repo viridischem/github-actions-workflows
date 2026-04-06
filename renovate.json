@@ -18,10 +18,23 @@
         "github-actions"
       ],
       "matchUpdateTypes": [
-        "minor",
         "patch"
       ],
-      "groupName": "non-major github actions dependencies",
+      "groupName": "patch github actions dependencies",
+      "automerge": true,
+      "automergeType": "pr",
+      "labels": [
+        "dependencies"
+      ]
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "groupName": "minor github actions dependencies",
       "labels": [
         "dependencies"
       ]
