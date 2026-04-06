@@ -128,7 +128,7 @@ jobs:
       # BEGIN BUILD
       - name: Build and push images to ECR
         if: "${{ inputs.ecrRepository != '' }}"
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           context: "${{ inputs.context }}"
           file: "${{ inputs.file }}"
@@ -136,7 +136,7 @@ jobs:
           tags: ${{ inputs.ecrRepository }}:${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
       - name: Build and push images to GCR
         if: "${{ inputs.gcrRepository != '' }}"
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           context: "${{ inputs.context }}"
           file: "${{ inputs.file }}"
