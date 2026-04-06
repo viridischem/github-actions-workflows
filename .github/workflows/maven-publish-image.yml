@@ -116,7 +116,7 @@ jobs:
       - name: Login to Amazon ECR
         if: "${{ inputs.ecrRepository != '' }}"
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
       - name: Set Maven Version
         env:
           MAVEN_PACKAGE_VERSION: ${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
