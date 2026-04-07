@@ -100,7 +100,7 @@ jobs:
       - name: Login to Amazon ECR
         if: "${{ inputs.ecrRepository != '' }}"
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
       # BEGIN BUILD
       - name: Build and push images to ECR
         if: "${{ inputs.ecrRepository != '' }}"

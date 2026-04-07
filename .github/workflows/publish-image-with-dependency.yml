@@ -108,7 +108,7 @@ jobs:
       - name: Login to Amazon ECR
         if: "${{ inputs.ecrRepository != '' }}"
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
       - name: download dependency from S3
         run: |
           aws s3 cp ${{ inputs.dependencyLocation }} ${{ inputs.dependencyDestination }}
