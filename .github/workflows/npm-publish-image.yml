@@ -109,7 +109,7 @@ jobs:
         with:
           service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
           credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
-      - uses: google-github-actions/setup-gcloud@v1
+      - uses: google-github-actions/setup-gcloud@v3
       - name: authenticate to GCR
         if: "${{ inputs.gcrRepository != '' }}"
         run: gcloud auth configure-docker
