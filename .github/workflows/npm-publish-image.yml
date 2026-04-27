@@ -40,8 +40,13 @@ on:
         required: false
         default: false
         type: boolean
+      packageManager:
+        description: The package manager to use for install, test, and build
+        required: false
+        default: npm
+        type: string
       runTests:
-        description: Run npm test before building the repository
+        description: Run tests before building the repository
         required: false
         default: true
         type: boolean
@@ -93,16 +98,30 @@ jobs:
           GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
           echo "GIT_REF_NAME=${GITHUB_REF_TMP}" >> $GITHUB_OUTPUT
           echo "GIT_REF_DOCKER_TAG=${GITHUB_REF_CLEANED}" >> $GITHUB_OUTPUT
+      - uses: pnpm/action-setup@v4
+        if: ${{ inputs.packageManager == 'pnpm' }}
       - uses: actions/setup-node@v6
         with:
           node-version: "${{ inputs.nodeVersion }}"
+          cache: ${{ inputs.packageManager }}
       - name: install npm packages
+        if: ${{ inputs.packageManager == 'npm' }}
         run: npm ci${{ inputs.legacyPeerDeps && ' --legacy-peer-deps' || '' }}
+      - name: install pnpm packages
+        if: ${{ inputs.packageManager == 'pnpm' }}
+        run: pnpm install --frozen-lockfile
       - name: run npm tests
-        if: ${{ inputs.runTests }}
+        if: ${{ inputs.runTests && inputs.packageManager == 'npm' }}
         run: npm test
-      - name: build repository
+      - name: run pnpm tests
+        if: ${{ inputs.runTests && inputs.packageManager == 'pnpm' }}
+        run: pnpm test
+      - name: build repository with npm
+        if: ${{ inputs.packageManager == 'npm' }}
         run: npm run build
+      - name: build repository with pnpm
+        if: ${{ inputs.packageManager == 'pnpm' }}
+        run: pnpm build
       # Google
       - uses: google-github-actions/auth@v3
         if: "${{ inputs.gcrRepository != '' }}"
