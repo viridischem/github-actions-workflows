@@ -22,6 +22,11 @@ on:
         description: Maven dependency file(s) used for cache keying
         default: "**/pom.xml"
         type: string
+      aws_region:
+        description: The AWS region for package publishing
+        required: false
+        default: us-east-1
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         description: AWS key with push access to ECR
