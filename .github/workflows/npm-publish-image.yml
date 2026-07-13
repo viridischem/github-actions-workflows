@@ -98,7 +98,7 @@ jobs:
           GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
           echo "GIT_REF_NAME=${GITHUB_REF_TMP}" >> "$GITHUB_OUTPUT"
           echo "GIT_REF_DOCKER_TAG=${GITHUB_REF_CLEANED}" >> "$GITHUB_OUTPUT"
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
         if: ${{ inputs.packageManager == 'pnpm' }}
       - uses: actions/setup-node@v6
         with:
