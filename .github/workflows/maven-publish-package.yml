@@ -22,6 +22,11 @@ on:
         description: Maven dependency file(s) used for cache keying
         default: "**/pom.xml"
         type: string
+      aws_region:
+        description: The AWS region for package publishing
+        required: false
+        default: us-east-1
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         description: AWS key with push access to ECR
@@ -59,7 +64,7 @@ jobs:
       - name: Get the ref name
         id: get_ref_name
         run: |
-          if [ ! -z "$GITHUB_REF_NAME" ]
+          if [ -n "$GITHUB_REF_NAME" ]
           then
               GITHUB_REF_TMP=${GITHUB_REF_NAME}
           else
@@ -68,8 +73,8 @@ jobs:
           fi
 
           GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
-          echo "GIT_REF_NAME=${GITHUB_REF_TMP}" >> $GITHUB_OUTPUT
-          echo "GIT_REF_DOCKER_TAG=${GITHUB_REF_CLEANED}" >> $GITHUB_OUTPUT
+          echo "GIT_REF_NAME=${GITHUB_REF_TMP}" >> "$GITHUB_OUTPUT"
+          echo "GIT_REF_DOCKER_TAG=${GITHUB_REF_CLEANED}" >> "$GITHUB_OUTPUT"
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
@@ -86,7 +91,7 @@ jobs:
       - name: Set Maven Version
         env:
           MAVEN_PACKAGE_VERSION: ${{ steps.get_ref_name.outputs.GIT_REF_DOCKER_TAG }}
-        run: mvn -B -ntp versions:set -DnewVersion=$MAVEN_PACKAGE_VERSION
+        run: mvn -B -ntp versions:set -DnewVersion="$MAVEN_PACKAGE_VERSION"
       - name: Warm Maven dependency cache
         run: mvn -B -ntp -U dependency:go-offline
       - name: publish with maven

@@ -1,26 +1,46 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:best-practices"
   ],
   "baseBranchPatterns": [
     "main"
   ],
+  "timezone": "America/Los_Angeles",
   "dependencyDashboard": true,
-  "automerge": false,
+  "platformAutomerge": true,
+  "major": {
+    "dependencyDashboardApproval": true
+  },
+  "minimumReleaseAge": "14 days",
+  "prConcurrentLimit": 5,
+  "branchConcurrentLimit": 5,
+  "prHourlyLimit": 2,
   "rangeStrategy": "replace",
   "labels": [
     "dependencies"
   ],
+  "vulnerabilityAlerts": {
+    "labels": [
+      "dependencies",
+      "security"
+    ],
+    "dependencyDashboardApproval": false,
+    "minimumReleaseAge": null
+  },
   "packageRules": [
     {
+      "description": "Automerge non-major GitHub Actions updates after required checks pass",
       "matchManagers": [
         "github-actions"
       ],
       "matchUpdateTypes": [
-        "patch"
+        "minor",
+        "patch",
+        "pin",
+        "digest"
       ],
-      "groupName": "patch github actions dependencies",
+      "groupName": "github actions non-major dependencies",
       "automerge": true,
       "automergeType": "pr",
       "labels": [
@@ -28,24 +48,14 @@
       ]
     },
     {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "matchUpdateTypes": [
-        "minor"
-      ],
-      "groupName": "minor github actions dependencies",
-      "labels": [
-        "dependencies"
-      ]
-    },
-    {
+      "description": "Require dashboard approval for major GitHub Actions updates",
       "matchManagers": [
         "github-actions"
       ],
       "matchUpdateTypes": [
         "major"
       ],
+      "dependencyDashboardApproval": true,
       "labels": [
         "dependencies",
         "major-update"
