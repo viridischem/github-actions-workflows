@@ -68,7 +68,7 @@ jobs:
       - name: Get the ref name
         id: get_ref_name
         run: |
-          if [ ! -z "$GITHUB_REF_NAME" ]
+          if [ -n "$GITHUB_REF_NAME" ]
           then
               GITHUB_REF_TMP=${GITHUB_REF_NAME}
           else
@@ -77,8 +77,8 @@ jobs:
           fi
 
           GITHUB_REF_CLEANED=${GITHUB_REF_TMP//\//-}
-          echo "GIT_REF_NAME=${GITHUB_REF_TMP}" >> $GITHUB_OUTPUT
-          echo "GIT_REF_DOCKER_TAG=${GITHUB_REF_CLEANED}" >> $GITHUB_OUTPUT
+          echo "GIT_REF_NAME=${GITHUB_REF_TMP}" >> "$GITHUB_OUTPUT"
+          echo "GIT_REF_DOCKER_TAG=${GITHUB_REF_CLEANED}" >> "$GITHUB_OUTPUT"
       # Google
       - uses: google-github-actions/auth@v3
         if: "${{ inputs.gcrRepository != '' }}"
