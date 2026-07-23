@@ -46,12 +46,12 @@ jobs:
         id: slack
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: zuplo/github-action-slack-notify-build@v2
+        uses: zuplo/github-action-slack-notify-build@cf8e7e66a21d76a8125ea9648979c30920195552 # v2
         with:
           channel: github-actions
           status: STARTED
           color: warning
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           lfs: ${{ inputs.lfs }}
       - name: Get the ref name
@@ -69,18 +69,18 @@ jobs:
           echo "GIT_REF_NAME=${GITHUB_REF_TMP}" >> "$GITHUB_OUTPUT"
           echo "GIT_REF_DOCKER_TAG=${GITHUB_REF_CLEANED}" >> "$GITHUB_OUTPUT"
       - name: Set up Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5
         with:
           distribution: "${{ inputs.javaDistribution }}"
           java-version: "${{ inputs.javaVersion }}"
           cache: maven
           cache-dependency-path: "${{ inputs.cacheDependencyPath }}"
       # Google
-      - uses: google-github-actions/auth@v3
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           service_account: "${{ secrets.GCLOUD_SERVICE_ACCOUNT }}"
           credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
-      - uses: google-github-actions/setup-gcloud@v3
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
       - name: Warm Maven dependency cache
         run: mvn -B -ntp -U dependency:go-offline
       - name: test with maven
@@ -91,7 +91,7 @@ jobs:
         if: success()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: zuplo/github-action-slack-notify-build@v2
+        uses: zuplo/github-action-slack-notify-build@cf8e7e66a21d76a8125ea9648979c30920195552 # v2
         with:
           # Updates existing message from the first step
           message_id: ${{ steps.slack.outputs.message_id }}
@@ -102,7 +102,7 @@ jobs:
         if: failure()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: zuplo/github-action-slack-notify-build@v2
+        uses: zuplo/github-action-slack-notify-build@cf8e7e66a21d76a8125ea9648979c30920195552 # v2
         with:
           # Updates existing message from the first step
           message_id: ${{ steps.slack.outputs.message_id }}
