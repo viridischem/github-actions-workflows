@@ -7,7 +7,9 @@
     "main"
   ],
   "timezone": "America/Los_Angeles",
-  "dependencyDashboard": true,
+  "dependencyDashboard": {
+    "enabled": true
+  },
   "platformAutomerge": true,
   "major": {
     "dependencyDashboardApproval": true
